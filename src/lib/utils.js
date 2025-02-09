@@ -1,5 +1,5 @@
 // export const BASE_URL = 'http://localhost:5001/api';
-export const BASE_URL = 'https://vartalaap-2c2d.onrender.com//api';
+export const BASE_URL = 'https://vartalaap-2c2d.onrender.com/api';
 // export const SOCKET_URL = 'http://localhost:5001';
 export const SOCKET_URL = 'https://vartalaap-2c2d.onrender.com/';
 
