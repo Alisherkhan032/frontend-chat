@@ -13,28 +13,14 @@ const useRealTimeMessage = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (socket) {
-      socket.on("newMessage", (msg) => {
-        // Check if message is either from or to the selected user
-        const isMessageFromSelectedUser = selectedUser && msg.senderId === selectedUser._id;
-        const isMessageToSelectedUser = selectedUser && msg.receiverId === selectedUser._id;
-        
-        // If you're the sender, msg.senderId will match your authUser._id
-        // If you're the receiver, msg.receiverId will match your authUser._id
-        const isMessageInvolvedWithCurrentUser = 
-          msg.senderId === authUser._id || msg.receiverId === authUser._id;
+    if (!socket) return;
 
-        // Only add message if it's part of the current conversation
-        if ((isMessageFromSelectedUser || isMessageToSelectedUser) && isMessageInvolvedWithCurrentUser) {
-          dispatch(setMessages([...messages, msg]));
-        }
-      });
+    socket.on("newMessage", (msg) => {
+      dispatch(addMessage(msg));
+    });
 
-      return () => {
-        socket.off("newMessage");
-      };
-    }
-  }, [socket, dispatch, selectedUser, authUser]);
+    return () => socket.off("newMessage");
+  }, [socket, dispatch]);
 };
 
 export default useRealTimeMessage;

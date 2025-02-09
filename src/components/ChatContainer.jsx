@@ -38,10 +38,6 @@ const ChatContainer = () => {
     if (selectedUser) {
       getMessages(selectedUser._id);
     }
-
-    return ()=>{
-      dispatch(setMessages([]));
-    }
   }, [selectedUser]);
 
   // useEffect(() => {

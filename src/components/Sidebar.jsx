@@ -33,18 +33,33 @@ const Sidebar = () => {
   };
 
   const handleSelectUser = (user) => {
-    dispatch(setSelectedUser(user)); // set the user to chat with
-  }
+    // If selected user goes offline and showOnlineOnly is true,
+    // we should deselect them
+    if (showOnlineOnly && !onlineUsers.includes(user._id)) {
+      dispatch(setSelectedUser(null));
+      return;
+    }
+    dispatch(setSelectedUser(user));
+  };
 
-  const filteredUsers = showOnlineOnly ? users.filter((user) => onlineUsers.includes(user._id)) : users;
+  // Filter users based on online status
+  const filteredUsers = showOnlineOnly 
+    ? users.filter(user => onlineUsers.includes(user._id))
+    : users;
 
   useEffect(() => {
     getUsers();
+    return () => {
+      dispatch(setSelectedUser(null));
+    };
+  }, []);
 
-    return ()=>{
+  // Add effect to handle selected user when toggling online only mode
+  useEffect(() => {
+    if (showOnlineOnly && selectedUser && !onlineUsers.includes(selectedUser._id)) {
       dispatch(setSelectedUser(null));
     }
-  }, []);
+  }, [showOnlineOnly, selectedUser, onlineUsers]);
 
   if (isUsersLoading) return <SidebarSkeleton />;
 
@@ -55,7 +70,6 @@ const Sidebar = () => {
           <Users className="size-6" />
           <span className="font-medium hidden lg:block">Contacts</span>
         </div>
-        {/* TODO: Online filter toggle */}
         <div className="mt-3 hidden lg:flex items-center gap-2">
           <label className="cursor-pointer flex items-center gap-2">
             <input
@@ -66,41 +80,38 @@ const Sidebar = () => {
             />
             <span className="text-sm">Show online only</span>
           </label>
-          <span className="text-xs text-zinc-500">({onlineUsers.length - 1} online)</span>
+          <span className="text-xs text-zinc-500">
+            ({onlineUsers.length > 0 ? onlineUsers.length - 1 : 0} online)
+          </span>
         </div>
       </div>
 
       <div className="overflow-y-auto w-full py-3">
-        {filteredUsers.length > 0 &&
+        {filteredUsers.length > 0 ? (
           filteredUsers.map((user) => (
             <button
               key={user._id}
-              onClick={() => handleSelectUser(user)} 
+              onClick={() => handleSelectUser(user)}
               className={`
-              w-full p-3 flex items-center gap-3
-              hover:bg-base-300 transition-colors
-              ${
-                selectedUser?._id === user._id
-                  ? "bg-base-300 ring-1 ring-base-300"
-                  : ""
-              }
-            `}
+                w-full p-3 flex items-center gap-3
+                hover:bg-base-300 transition-colors
+                ${selectedUser?._id === user._id ? "bg-base-300 ring-1 ring-base-300" : ""}
+              `}
             >
               <div className="relative mx-auto lg:mx-0">
                 <img
                   src={user.profilePic || "/avatar.png"}
-                  alt={user.name}
+                  alt={user.fullName}
                   className="size-12 object-cover rounded-full"
                 />
-                {onlineUsers.length > 0 && onlineUsers.includes(user._id) && (
+                {onlineUsers.includes(user._id) && (
                   <span
                     className="absolute bottom-0 right-0 size-3 bg-green-500 
-                  rounded-full ring-2 ring-zinc-900"
+                    rounded-full ring-2 ring-zinc-900"
                   />
                 )}
               </div>
 
-              {/* User info - only visible on larger screens */}
               <div className="hidden lg:block text-left min-w-0">
                 <div className="font-medium truncate">{user.fullName}</div>
                 <div className="text-sm text-zinc-400">
@@ -108,13 +119,15 @@ const Sidebar = () => {
                 </div>
               </div>
             </button>
-          ))}
-
-        {filteredUsers.length === 0 && (
-          <div className="text-center text-zinc-500 py-4">No online users</div>
+          ))
+        ) : (
+          <div className="text-center text-zinc-500 py-4">
+            {showOnlineOnly ? "No online users" : "No users found"}
+          </div>
         )}
       </div>
     </aside>
   );
 };
+
 export default Sidebar;

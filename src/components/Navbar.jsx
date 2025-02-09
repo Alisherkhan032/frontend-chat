@@ -8,19 +8,23 @@ import {
 } from "../slices/authSlice";
 import { axiosInstance } from "../lib/axios";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
   const user = useSelector(selectAuthUser);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleLogout = async () => {
     try {
+      console.log("here 1");
       await axiosInstance.post("/auth/logout");
+      console.log("here 2");
       dispatch(setAuthUser(null));
-      dispatch(setOnlineUsers([]));
+      navigate("/login");
       toast.success("User logged out successfully");
     } catch (error) {
-      toast.error(error.response.data.message);
+      toast.error("something went wrong");
     }
   };
 

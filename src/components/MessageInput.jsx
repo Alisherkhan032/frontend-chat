@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { Image, Send, X } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
-import { setMessages, selectSelectedUser, selectMessages } from "../slices/chatSlice";
+import { setMessages, selectSelectedUser, selectMessages, addMessage } from "../slices/chatSlice";
 import { selectAuthUser } from "../slices/authSlice";
 import toast from "react-hot-toast";
 import { axiosInstance } from "../lib/axios";
@@ -48,8 +48,7 @@ const MessageInput = () => {
           image: imagePreview,
         }
       );
-      console.log("res.data", res.data);
-      dispatch(setMessages([...messages, res.data.message]));
+      dispatch(addMessage(res.data.message)); 
       // Clear form
       setText("");
       setImagePreview(null);
