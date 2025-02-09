@@ -16,6 +16,9 @@ const useRealTimeMessage = () => {
     if (!socket) return;
 
     socket.on("newMessage", (msg) => {
+      console.log("message sender Id is ", msg.senderId);
+      console.log("selected user id is ", selectedUser._id);
+      if(msg.senderId !== selectedUser._id) return;
       dispatch(addMessage(msg));
     });
 

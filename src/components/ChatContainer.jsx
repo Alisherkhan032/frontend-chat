@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
+  addMessage,
   selectMessages,
   selectSelectedUser,
   setMessages,
@@ -12,12 +13,14 @@ import ChatHeader from "./ChatHeader";
 import MessageSkeleton from "./skeletons/MessageSkeleton";
 import MessageInput from "./MessageInput";
 import { formatMessageTime } from "../lib/utils";
+import { selectSocket } from "../slices/socketSlice";
 
 const ChatContainer = () => {
   const dispatch = useDispatch();
   const selectedUser = useSelector(selectSelectedUser);
   const authUser = useSelector(selectAuthUser);
   const messages = useSelector(selectMessages);
+  const socket = useSelector(selectSocket);
   const [loading, setLoading] = useState(true);
   const messageEndRef = useRef(null);
 
@@ -34,11 +37,32 @@ const ChatContainer = () => {
     }
   };
 
+  const subsscribeToMessages = () => {
+    if (!selectedUser) return;
+
+    socket.on("newMessage", (newMessage) => {
+      const isMessageSentFromSelectedUser =
+        newMessage.senderId === selectedUser._id;
+      if (!isMessageSentFromSelectedUser) return;
+
+      dispatch(addMessage(newMessage));
+    });
+  };
+
+  const unSubsscribeToMessages = () => {
+    socket.off("newMessage");
+  }
+
   useEffect(() => {
-    if (selectedUser) {
-      getMessages(selectedUser._id);
+    getMessages(selectedUser._id);
+
+    subsscribeToMessages();
+
+    return () => {
+      unSubsscribeToMessages();
     }
-  }, [selectedUser]);
+
+  }, [selectedUser._id, socket, dispatch]);
 
   // useEffect(() => {
   //   if (messageEndRef.current && messages) {
@@ -50,7 +74,6 @@ const ChatContainer = () => {
   useEffect(() => {
     messageEndRef.current?.scrollIntoView();
   }, [messages]);
-  
 
   if (loading) {
     return (

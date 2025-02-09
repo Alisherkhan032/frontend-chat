@@ -15,7 +15,7 @@ const MessageInput = () => {
   const selectedUser = useSelector(selectSelectedUser);
   const authUser = useSelector(selectAuthUser);
   const messages = useSelector(selectMessages);
-  useRealTimeMessage();
+  // useRealTimeMessage();
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
