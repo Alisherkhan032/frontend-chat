@@ -17,9 +17,7 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     try {
-      console.log("here 1");
       await axiosInstance.post("/auth/logout");
-      console.log("here 2");
       dispatch(setAuthUser(null));
       navigate("/login");
       toast.success("User logged out successfully");
@@ -45,7 +43,7 @@ const Navbar = () => {
               </div>
               <h1 className="text-lg font-bold">Vartalaap</h1>
             </Link>
-            <div>
+            <div className="hidden sm:block text-sm text-base-content">
               Welcome <span className="font-bold">{user?.fullName}</span>
             </div>
           </div>
